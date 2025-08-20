@@ -1,11 +1,6 @@
 #!/bin/bash
 set -e
 
-sudo tee /etc/apt/sources.list > /dev/null <<EOF
-deb http://archive.debian.org/debian buster main contrib non-free
-deb http://archive.debian.org/debian-security buster/updates main contrib non-free
-EOF
-
 apt update -y
 apt install -y python3 python3-pip
 pip3 install --upgrade pip
