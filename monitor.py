@@ -8,7 +8,7 @@ from collections import deque
 
 # === CONFIG ===
 WEBHOOK_URL = "https://discord.com/api/webhooks/XXX/YYY?wait=true"  # <== your webhook with ?wait=true
-UPDATE_INTERVAL = 0.5       # seconds
+UPDATE_INTERVAL = 1      # seconds
 HISTORY_POINTS = 3600     # keep 1h of history
 
 # === HISTORY BUFFERS ===
