@@ -6,24 +6,21 @@ import os
 import time
 from collections import deque
 
-# === CONFIG ===
-WEBHOOK_URL = "https://discord.com/api/webhooks/XXX/YYY?wait=true"  # <== your webhook with ?wait=true
-UPDATE_INTERVAL = 1      # seconds
-HISTORY_POINTS = 3600     # keep 1h of history
+WEBHOOK_URL = "https://discord.com/api/webhooks/XXX/YYY?wait=true"
+UPDATE_INTERVAL = 1
+HISTORY_POINTS = 3600
 
-# === HISTORY BUFFERS ===
 cpu_hist = deque(maxlen=HISTORY_POINTS)
 ram_hist = deque(maxlen=HISTORY_POINTS)
 disk_hist = deque(maxlen=HISTORY_POINTS)
 swap_hist = deque(maxlen=HISTORY_POINTS)
 
-# === UTILS ===
 def bytes_to_gb(value):
     return round(value / (1024**3), 2)
 
 def get_cpu_model():
     try:
-        if os.name == "posix":  # Linux
+        if os.name == "posix":
             with open("/proc/cpuinfo") as f:
                 for line in f:
                     if "model name" in line:
@@ -36,7 +33,10 @@ def get_system_specs():
     cpu_name = get_cpu_model()
     try:
         freq = psutil.cpu_freq()
-        cpu_ghz = round(freq.max / 1000, 2) if freq and freq.max else "N/A"
+        if freq and freq.max:
+            cpu_ghz = round(freq.max / 1000, 2)  # MHz -> GHz
+        else:
+            cpu_ghz = "N/A"
     except:
         cpu_ghz = "N/A"
 
@@ -66,47 +66,36 @@ def calc_stats(history):
     latest = round(history[-1], 1)
     return latest, avg, hi, lo
 
-# === MAIN ===
 def main():
     specs = get_system_specs()
     cpu_name, cpu_ghz, ram_total, disk_total, swap_total, cores, threads = specs
 
-    # --- Send the first proper embed ---
     embed = {
         "title": "📊 Host Monitor",
         "color": 0x00ff00,
         "fields": [
-            {
-                "name": "⚙️ Specs",
-                "value": f"**CPU:** {cpu_name} @ {cpu_ghz} GHz\n"
-                         f"**Cores/Threads:** {cores}/{threads}\n"
-                         f"**RAM:** {ram_total} GB\n"
-                         f"**Disk:** {disk_total} GB\n"
-                         f"**Swap:** {swap_total} GB",
-                "inline": False
-            },
+            {"name": "⚙️ Specs", "value": f"**CPU:** {cpu_name} @ {cpu_ghz} GHz\n**Cores/Threads:** {cores}/{threads}\n**RAM:** {ram_total} GB\n**Disk:** {disk_total} GB\n**Swap:** {swap_total} GB", "inline": False},
             {"name": "🖥️ CPU", "value": "Loading...", "inline": True},
             {"name": "💾 RAM", "value": "Loading...", "inline": True},
             {"name": "🔄 Swap", "value": "Loading...", "inline": True},
             {"name": "📀 Disk", "value": "Loading...", "inline": True},
         ],
-        "footer": {"text": "Updating every half a second • Tracking last 1 hour"}
+        "footer": {"text": "Updating every second • Tracking last 1 hour"}
     }
 
     resp = requests.post(WEBHOOK_URL, json={"embeds": [embed]})
     if resp.status_code >= 300:
-        print("❌ Failed to send initial webhook:", resp.status_code, resp.text)
+        print("Failed to send initial webhook:", resp.status_code, resp.text)
         return
 
     try:
         message_id = resp.json()["id"]
     except Exception:
-        print("❌ Webhook did not return JSON. Make sure URL ends with ?wait=true")
+        print("Webhook did not return JSON. Ensure URL ends with ?wait=true")
         return
 
     base_url = WEBHOOK_URL.split("?")[0]
 
-    # --- Update loop ---
     while True:
         cpu, ram, swap, disk = get_metrics()
         cpu_hist.append(cpu)
@@ -128,7 +117,7 @@ def main():
         url = f"{base_url}/messages/{message_id}"
         r = requests.patch(url, json={"embeds": [embed]})
         if r.status_code >= 300:
-            print("❌ Failed to edit webhook message:", r.status_code, r.text)
+            print("Failed to edit webhook message:", r.status_code, r.text)
 
         time.sleep(UPDATE_INTERVAL)
 
