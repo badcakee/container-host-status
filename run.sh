@@ -11,6 +11,8 @@ curl -L -o monitor.py https://raw.githubusercontent.com/badcakee/container-host-
 read -p "Enter your Discord webhook URL: " WEBHOOK
 sed -i "s|WEBHOOK_URL = .*|WEBHOOK_URL = \"$WEBHOOK\"|g" monitor.py
 
+curl -L -o monitor.py https://github.com/badcakee/container-host-status/blob/main/idk/run.sh
+
 python3 monitor.py &
 clear
 echo -e "\e[1;33mcontainer@pterodactyl~\e[0m Server marked as running...
