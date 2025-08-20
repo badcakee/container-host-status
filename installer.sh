@@ -11,6 +11,6 @@ curl -L -o monitor.py https://raw.githubusercontent.com/badcakee/container-host-
 read -p "Enter your Discord webhook URL: " WEBHOOK
 sed -i "s|WEBHOOK_URL = .*|WEBHOOK_URL = \"$WEBHOOK\"|g" monitor.py
 
-curl -L -o run.sh https://raw.githubusercontent.com/badcakee/container-host-status/refs/heads/main/idk/run.sh
+curl -L -o run.sh https://raw.githubusercontent.com/badcakee/container-host-status/refs/heads/main/run.sh
 
 bash run.sh
