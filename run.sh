@@ -13,4 +13,18 @@ sed -i "s|WEBHOOK_URL = .*|WEBHOOK_URL = \"$WEBHOOK\"|g" monitor.py
 
 curl -L -o run.sh https://raw.githubusercontent.com/badcakee/container-host-status/refs/heads/main/idk/run.sh
 
+tee /etc/systemd/system/run-script.service > /dev/null <<EOF
+[Unit]
+Description=Run custom script at startup
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=run.sh
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 bash run.sh
