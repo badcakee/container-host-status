@@ -7,7 +7,7 @@ import time
 from collections import deque
 
 WEBHOOK_URL = "https://discord.com/api/webhooks/XXX/YYY?wait=true"
-UPDATE_INTERVAL = 1
+UPDATE_INTERVAL = 0.5
 HISTORY_POINTS = 3600
 
 cpu_hist = deque(maxlen=HISTORY_POINTS)
