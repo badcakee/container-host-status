@@ -90,7 +90,7 @@ def main():
             {"name": "🔄 Swap", "value": "Loading...", "inline": True},
             {"name": "📀 Disk", "value": "Loading...", "inline": True},
         ],
-        "footer": {"text": "Updating every second • Tracking last 1 hour"}
+        "footer": {"text": "Updating every half a second • Tracking last 1 hour"}
     }
 
     resp = requests.post(WEBHOOK_URL, json={"embeds": [embed]})
